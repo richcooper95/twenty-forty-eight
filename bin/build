@@ -1,0 +1,49 @@
+#!/bin/bash
+PARENT_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+
+cd "$PARENT_PATH/../"
+
+if ! [ -x "$(command -v python3)" ]; then
+    echo 'Error: python3 is not installed.' >&2
+    echo 'Please install Python and try again.' >&2
+    exit 1
+fi
+
+echo "Instantiating build venv..."
+python3 -m venv .build-venv
+echo "Activating build venv..."
+source .build-venv/bin/activate
+echo "Installing dependencies..."
+pip install -r requirements.txt &> /dev/null
+echo "Creating executable..."
+pyinstaller -F twenty_forty_eight.py &> /dev/null
+echo "Copying executable to bin directory..."
+mv dist/twenty_forty_eight bin/twenty_forty_eight
+echo "Cleaning up..."
+deactivate
+rm -rf build dist twenty_forty_eight.spec .build-venv
+echo "Done"
+
+echo ""
+echo "Created: bin/twenty_forty_eight"
+echo ""
+echo "To check the build worked, try executing bin/twenty_forty_eight from this directory."
+echo ""
+echo "To run this game from anywhere, you have a few options:"
+echo ""
+echo "  1. Add the following line to your .bashrc file:"
+echo "     alias twenty_forty_eight='$(pwd)/bin/twenty_forty_eight'"
+echo ""
+echo "  2. Add the following line to your .bashrc file:"
+echo "     export PATH=\$PATH:$(pwd)/bin"
+echo ""
+echo "  3. Copy this file to a location already in your PATH (e.g. /usr/local/bin)."
+echo ""
+echo "NB: If you choose option 1 or 2, you will need to restart your terminal."
+echo ""
+echo "To upgrade, pull the latest changes from the repository and run this script again."
+echo ""
+echo "To uninstall, simply delete the twenty_forty_eight file from the bin directory."
+echo ""
+echo "Have fun pretending to work!"
+echo ""
