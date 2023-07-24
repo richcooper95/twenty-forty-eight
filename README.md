@@ -2,7 +2,9 @@
 
 A way to play the famous [2048](https://play2048.co/) game on your terminal (so you can do it at work with no one noticing).
 
-I don't own the idea behind this game; that was [Gabriele Cirulli](http://gabrielecirulli.com/). This is just a reworking for your terminal.
+I don't own the idea behind this game; that was [Gabriele Cirulli](http://gabrielecirulli.com/). This is just a reworking.
+
+![image](https://github.com/richcooper95/twenty_forty_eight/assets/58304039/5b550e12-a85f-48aa-b4d0-41ec06b4b249)
 
 ## Installation
 
