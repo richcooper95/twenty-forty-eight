@@ -8,14 +8,15 @@ I don't own the idea behind this game; that was [Gabriele Cirulli](http://gabrie
 
 ## Installation
 
-To install this command, clone this repo and run the `./bin/build` script. Follow the instructions there to access the
-`twenty_forty_eight` binary from anywhere.
+There are two steps to installing this command:
+  1. Clone this repo on your machine.
+  2. Run the `./bin/build` script and follow the instructions.
 
 ### Details
 
 For ease of distribution, the `./bin/build` script will use [PyInstaller](https://pyinstaller.org/en/stable/) to generate an executable specific to your machine.
 
-The build steps are fairly simple:
+The steps performed in `./bin/build` are fairly simple - it will:
   1. Create a disposable virtual env.
   2. Activate the virtual env and install dependencies.
   3. Run `pyinstaller` inside the virtual env to create the executable.
