@@ -115,7 +115,7 @@ class Game:
         cprint("Welcome to 2048!", "green", attrs=["bold"])
         print("")
         cprint(
-            "Made by Gabriele Cirulli, brought to your terminal by Rich Barton-Cooper.",
+            "Made by Gabriele Cirulli. Brought to your terminal by Rich Barton-Cooper.",
             "green",
         )
         print("")
@@ -148,7 +148,9 @@ class Game:
                 self.print_no_moves()
                 return
 
-            if not self.handle_user_input():
+            should_continue = self.handle_user_input()
+
+            if not should_continue:
                 return
 
             self.print_game()
