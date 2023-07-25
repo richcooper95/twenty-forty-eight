@@ -82,7 +82,7 @@ class Game:
         """Return the number of columns in the game."""
         return self.mat.shape[1]
 
-    def print_game_to_terminal(self) -> None:
+    def print_game(self) -> None:
         """Print the game to the terminal.
 
         This will clear the terminal, print the game header, and then print the game.
@@ -103,6 +103,7 @@ class Game:
         if num == 0:
             return " "
 
+        # TODO: Add colours?
         return str(num)
 
     def print_header(self) -> None:
@@ -136,58 +137,45 @@ class Game:
         self.create_number()
         self.create_number()
 
-        self.print_game_to_terminal()
+        self.print_game()
 
         while True:
             if self.game_won():
-                cprint(
-                    "YOU WON! Congratulations, you excellent 2048-er!",
-                    "blue",
-                    attrs=["bold"],
-                )
-                print("")
+                self.print_game_won()
                 return
 
             if self.no_moves_available():
-                cprint(
-                    "You're out of moves! You lost. Better luck next time.",
-                    "red",
-                    attrs=["bold"],
-                )
-                print("")
-
-                if self.max_val == 1024:
-                    cprint("(And you were SO close, too!)", "red")
-                    print("")
-                elif self.max_val == 512:
-                    cprint("(Pretty good effort though!)", "red")
-                    print("")
-                elif self.max_val == 256:
-                    cprint("(You can do better than that!)", "red")
-                    print("")
-                else:
-                    cprint("(You can do MUCH better than that!)", "red")
-                    print("")
-
+                self.print_no_moves()
                 return
 
-            user_input = input("\rMove (Enter): ")
-
-            if user_input == self.left_key:
-                self.move_left()
-            elif user_input == self.right_key:
-                self.move_right()
-            elif user_input == self.down_key:
-                self.move_down()
-            elif user_input == self.up_key:
-                self.move_up()
-            elif user_input == "q":
-                print("")
-                cprint("Thanks for playing!", "green", attrs=["bold"])
-                print("")
+            if not self.handle_user_input():
                 return
 
-            self.print_game_to_terminal()
+            self.print_game()
+
+    def handle_user_input(self) -> bool:
+        """Handle user input.
+
+        Returns:
+            bool: True if the game should continue, False if the user has quit.
+        """
+        user_input = input("\rMove (Enter): ")
+
+        if user_input == self.left_key:
+            self.move_left()
+        elif user_input == self.right_key:
+            self.move_right()
+        elif user_input == self.down_key:
+            self.move_down()
+        elif user_input == self.up_key:
+            self.move_up()
+        elif user_input == "q":
+            print("")
+            cprint("Thanks for playing!", "green", attrs=["bold"])
+            print("")
+            return False
+
+        return True
 
     def game_won(self) -> bool:
         """Check if the game has been won.
@@ -200,6 +188,16 @@ class Game:
             return True
 
         return False
+
+    def print_game_won(self) -> None:
+        """Print the game won message.
+        """
+        cprint(
+            "YOU WON! Congratulations, you excellent 2048-er!",
+            "blue",
+            attrs=["bold"],
+        )
+        print("")
 
     def no_moves_available(self) -> bool:
         """Check if there are any moves available.
@@ -224,6 +222,29 @@ class Game:
         self.print_debug("No moves available")
 
         return True
+
+    def print_no_moves(self) -> None:
+        """Print the no moves message.
+        """
+        cprint(
+            "You're out of moves! You lost. Better luck next time.",
+            "red",
+            attrs=["bold"],
+        )
+        print("")
+
+        if self.max_val == 1024:
+            cprint("(And you were SO close, too!)", "red")
+            print("")
+        elif self.max_val == 512:
+            cprint("(Pretty good effort though!)", "red")
+            print("")
+        elif self.max_val == 256:
+            cprint("(You can do better than that!)", "red")
+            print("")
+        else:
+            cprint("(You can do MUCH better than that!)", "red")
+            print("")
 
     def create_number(self) -> None:
         """Create a new number in a random empty cell."""
@@ -338,9 +359,7 @@ class Game:
                 move_made = True
 
             elif not self.contains_number(i, j_slow):
-                self.print_debug(
-                    "j_slow is empty, copying j_fast value to j_slow"
-                )
+                self.print_debug("j_slow is empty, copying j_fast value to j_slow")
 
                 # If the slow pointer is empty, move the fast pointer value to the slow
                 # pointer (setting the cell value at the fast pointer to zero). Do not
