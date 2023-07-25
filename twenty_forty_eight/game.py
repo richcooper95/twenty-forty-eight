@@ -34,6 +34,7 @@ class Game:
             debug (bool): Whether to output debug to console. Defaults to False.
         """
         self.mat = np.zeros((num_rows, num_cols), dtype=int)
+        self.max_val = 0
         self.debug = debug
         self.up_key = up_key
         self.down_key = down_key
@@ -59,6 +60,17 @@ class Game:
         lines.append("")
 
         return "\n".join(lines)
+
+    def __contains__(self, num: int) -> bool:
+        """Check if a number is in the game.
+
+        Args:
+            num (int): The number to check.
+
+        Returns:
+            bool: True if the number is in the game, False otherwise.
+        """
+        return num in self.mat
 
     @property
     def num_rows(self) -> int:
@@ -91,14 +103,9 @@ class Game:
         if num == 0:
             return " "
 
-        return num
+        return str(num)
 
-    def print_debug(self, *args, **kwargs):
-        """Print a debug message (i.e. only print to the terminal if debug is True)."""
-        if self.debug:
-            print(*args, **kwargs)
-
-    def print_header(self):
+    def print_header(self) -> str:
         """Print the game header.
 
         This includes the welcome message, controls, etc.
@@ -149,15 +156,13 @@ class Game:
                 )
                 print("")
 
-                max_val = np.max(self.mat)
-
-                if max_val == 1024:
+                if self.max_val == 1024:
                     cprint("(And you were SO close, too!)", "red")
                     print("")
-                elif max_val == 512:
+                elif self.max_val == 512:
                     cprint("(Pretty good effort though!)", "red")
                     print("")
-                elif max_val == 256:
+                elif self.max_val == 256:
                     cprint("(You can do better than that!)", "red")
                     print("")
                 else:
@@ -190,7 +195,7 @@ class Game:
         Returns:
             bool: True if the game has been won, False otherwise.
         """
-        if 2048 in self.mat:
+        if self.max_val == 2048:
             self.print_debug("Game won")
             return True
 
@@ -202,20 +207,19 @@ class Game:
         Returns:
             bool: True if there are no moves available, False otherwise.
         """
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
-                val = self.mat[i][j]
-                if val == 0:
-                    # If there is an empty cell, there is a move.
-                    return False
+        for i, j in np.ndindex(self.mat.shape):
+            val = self.mat[i][j]
+            if val == 0:
+                # If there is an empty cell, there is a move.
+                return False
 
-                if i > 0 and val == self.mat[i - 1][j]:
-                    # If there is a cell to the left with the same value, there is a move.
-                    return False
+            if i > 0 and val == self.mat[i - 1][j]:
+                # If there is a cell to the left with the same value, there is a move.
+                return False
 
-                if j > 0 and val == self.mat[i][j - 1]:
-                    # If there is a cell above with the same value, there is a move.
-                    return False
+            if j > 0 and val == self.mat[i][j - 1]:
+                # If there is a cell above with the same value, there is a move.
+                return False
 
         self.print_debug("No moves available")
 
@@ -225,10 +229,12 @@ class Game:
         """Create a new number in a random empty cell."""
         i, j = self.random_i_j()
 
-        while self.mat[i][j] != 0:
+        while self.contains_number(i, j):
             i, j = self.random_i_j()
 
-        self.mat[i][j] = random.choice(self.STARTING_NUMBERS)
+        number = random.choice(self.STARTING_NUMBERS)
+        self.mat[i][j] = number
+        self.max_val = max(self.max_val, number)
 
     def random_i_j(self) -> Tuple[int, int]:
         """Return a random (i, j) tuple within the bounds of the game.
@@ -250,54 +256,140 @@ class Game:
         """
         move_made = False
 
-        # Use a slow and fast pointer within each row to move all numbers left.
-        # The slow pointer will start at the leftmost column, and the fast pointer will
-        # play at the column to the right of the slow pointer.
         for i in range(self.num_rows):
-            j_slow = 0
-            self.print_debug(f" i: {i}")
-
-            for j_fast in range(1, self.num_cols):
-                self.print_debug(f"  j_slow: {j_slow} (val: {self.mat[i][j_slow]})")
-                self.print_debug(f"  j_fast: {j_fast} (val: {self.mat[i][j_fast]})")
-
-                if self.contains_number(i, j_fast):
-                    if self.mat[i][j_fast] == self.mat[i][j_slow]:
-                        self.print_debug("j_fast matches j_slow, adding")
-                        move_made = True
-                        self.mat[i][j_slow] = self.mat[i][j_slow] * 2
-                        self.mat[i][j_fast] = 0
-                        j_slow += 1
-
-                    elif not self.contains_number(i, j_slow):
-                        self.print_debug(
-                            "j_slow is empty, copying j_fast value to j_slow"
-                        )
-                        move_made = True
-                        self.mat[i][j_slow] = self.mat[i][j_fast]
-                        self.mat[i][j_fast] = 0
-
-                    elif not self.contains_number(i, j_slow + 1):
-                        self.print_debug(
-                            "j_fast does not match j_slow, copying j_fast value to empty j_slow + 1"
-                        )
-                        move_made = True
-                        self.mat[i][j_slow + 1] = self.mat[i][j_fast]
-                        self.mat[i][j_fast] = 0
-                        j_slow += 1
-
-                    else:
-                        self.print_debug(
-                            "j_fast does not match j_slow, and no space at j_slow + 1, skipping"
-                        )
-                        j_slow += 1
-                else:
-                    self.print_debug("j_fast is empty")
-
-                self.print_debug(self)
+            if self.move_left_in_row(i):
+                move_made = True
 
         if move_made:
             self.create_number()
+
+    def move_left_in_row(self, i: int) -> bool:
+        """Move all numbers left in a given row, combining numbers that match.
+
+        Args:
+            i (int): The row index.
+
+        Returns:
+            bool: True if a number was moved or merged, False otherwise.
+        """
+        self.print_debug(f" i: {i}")
+
+        move_made = False
+
+        # Use a slow and fast pointer within each row to move all the row numbers left,
+        # merging numbers that match.
+        # The slow pointer will start at the leftmost column, and the fast pointer will
+        # start at the column to the right of the slow pointer.
+        j_slow = 0
+        for j_fast in range(1, self.num_cols):
+            j_slow, move_made_in_iteration = self.move_left_iteration(i, j_slow, j_fast)
+
+            if move_made_in_iteration:
+                move_made = True
+
+            self.print_debug(self)
+
+        return move_made
+
+    def move_left_iteration(self, i: int, j_slow: int, j_fast: int) -> Tuple[int, bool]:
+        """A single iteration of moving left in a given row.
+
+        This is where the actual logic for moving left happens. This method is responsible
+        for moving the slow pointer, and moving and merging cell numbers as appropriate.
+
+        This method modifies the game matrix in place.
+
+        Args:
+            i (int): The row index.
+            j_slow (int): The slow pointer column index.
+            j_fast (int): The fast pointer column index.
+
+        Returns:
+            Tuple[int, bool]: A tuple of the new slow pointer column index, and whether a
+             move was made in this iteration.
+        """
+        move_made = False
+
+        self.print_debug(f"  j_slow: {j_slow} (val: {self.mat[i][j_slow]})")
+        self.print_debug(f"  j_fast: {j_fast} (val: {self.mat[i][j_fast]})")
+
+        if self.contains_number(i, j_fast):
+            if self.mat[i][j_fast] == self.mat[i][j_slow]:
+                self.print_debug("j_fast matches j_slow, adding")
+
+                # If the fast pointer matches the slow pointer, merge the numbers (setting
+                # the cell value at the fast pointer to zero), and increment the slow
+                # pointer.
+                #
+                # Examples:
+                #    s  f               sf
+                #   [2, 2, 0, 0] -> [4, 0, 0, 0]
+                #
+                #    s     f            s  f
+                #   [2, 0, 2, 0] -> [4, 0, 0, 0]
+                new_val = self.mat[i][j_slow] * 2
+                self.mat[i][j_slow] = new_val
+                self.mat[i][j_fast] = 0
+                j_slow += 1
+
+                # Update the max value.
+                self.max_val = max(self.max_val, new_val)
+
+                move_made = True
+
+            elif not self.contains_number(i, j_slow):
+                self.print_debug(
+                    "j_slow is empty, copying j_fast value to j_slow"
+                )
+
+                # If the slow pointer is empty, move the fast pointer value to the slow
+                # pointer (setting the cell value at the fast pointer to zero). Do not
+                # increment the slow pointer here, since we don't know if the next cell
+                # in the fast pointer will be a match with the new slow pointer value.
+                #
+                # Examples:
+                #    s  f            s  f
+                #   [0, 2, 2, 0] -> [2, 0, 2, 0] (the next iteration will merge the 2s)
+                self.mat[i][j_slow] = self.mat[i][j_fast]
+                self.mat[i][j_fast] = 0
+
+                move_made = True
+
+            elif not self.contains_number(i, j_slow + 1):
+                self.print_debug(
+                    "j_fast does not match j_slow, copying j_fast value to empty j_slow + 1"
+                )
+
+                # If the cell to the right of the slow pointer is empty, move the fast
+                # pointer value to the cell to the right of the slow pointer (setting the
+                # cell value at the fast pointer to zero), and increment the slow pointer.
+                #
+                # Examples:
+                #    s        f         s     f
+                #   [2, 0, 0, 4] -> [2, 4, 0, 0]
+                self.mat[i][j_slow + 1] = self.mat[i][j_fast]
+                self.mat[i][j_fast] = 0
+                j_slow += 1
+
+                move_made = True
+
+            else:
+                self.print_debug(
+                    "j_fast does not match j_slow, and no space at j_slow + 1, skipping j_slow"
+                )
+
+                # If the cell to the right of the slow pointer is not empty, and the fast
+                # pointer does not match the slow pointer, there is nothing to change at
+                # the slow pointer, so increment it.
+                j_slow += 1
+
+        else:
+            # If the fast pointer is empty, do nothing and wait for the next iteration.
+            # Do not increment the slow pointer here, since we don't know if the next
+            # cell in the fast pointer will be a match with the current slow pointer cell.
+            self.print_debug("j_fast is empty, leave j_slow unchanged")
+
+        return j_slow, move_made
 
     def move_right(self) -> None:
         """Move all numbers right, combining numbers that match."""
@@ -340,3 +432,8 @@ class Game:
             bool: True if the game contains a number at the given coordinates, False otherwise.
         """
         return self.mat[i][j] != 0
+
+    def print_debug(self, *args, **kwargs):
+        """Print a debug message (i.e. only print to the terminal if debug is True)."""
+        if self.debug:
+            print(*args, **kwargs)
