@@ -10,6 +10,10 @@ class Args:
 
     DEFAULT_NUM_ROWS = 4
     DEFAULT_NUM_COLS = 4
+    DEFAULT_UP_KEY = "w"
+    DEFAULT_DOWN_KEY = "s"
+    DEFAULT_LEFT_KEY = "a"
+    DEFAULT_RIGHT_KEY = "d"
 
     def __init__(
         self,
@@ -44,8 +48,8 @@ class Args:
             num_rows=cli.num_rows or cls.DEFAULT_NUM_ROWS,
             num_cols=cli.num_cols or cls.DEFAULT_NUM_COLS,
             debug=cli.debug,
-            up_key=cli.up_key,
-            down_key=cli.down_key,
-            left_key=cli.left_key,
-            right_key=cli.right_key,
+            up_key=cli.up_key or cls.DEFAULT_UP_KEY,
+            down_key=cli.down_key or cls.DEFAULT_DOWN_KEY,
+            left_key=cli.left_key or cls.DEFAULT_LEFT_KEY,
+            right_key=cli.right_key or cls.DEFAULT_RIGHT_KEY,
         )

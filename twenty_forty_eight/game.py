@@ -3,7 +3,7 @@
 import os
 import random
 
-from typing import Optional, Tuple
+from typing import Tuple
 
 from termcolor import cprint
 
@@ -20,11 +20,11 @@ class Game:
         *,
         num_rows: int,
         num_cols: int,
+        up_key: str,
+        down_key: str,
+        left_key: str,
+        right_key: str,
         debug: bool = False,
-        up_key: Optional[str] = None,
-        down_key: Optional[str] = None,
-        left_key: Optional[str] = None,
-        right_key: Optional[str] = None,
     ) -> None:
         """Create a new Game instance.
 
@@ -82,7 +82,7 @@ class Game:
         print(self)
 
     @staticmethod
-    def format_number(num) -> str:
+    def format_number(num: int) -> str:
         """Format a number for printing.
 
         Args:
