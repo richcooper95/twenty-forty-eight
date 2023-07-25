@@ -1,0 +1,7 @@
+{
+    "python.testing.pytestArgs": [
+        "twenty_forty_eight"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
