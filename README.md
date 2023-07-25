@@ -12,6 +12,8 @@ There are two steps to installing this command:
   1. Clone this repo on your machine.
   2. Run the `./bin/build` script and follow the instructions.
 
+NB: The executable is very slow when loading, but fast to play. I'll probably come back to speed up loading in the future.
+
 ### Details
 
 For ease of distribution, the `./bin/build` script will use [PyInstaller](https://pyinstaller.org/en/stable/) to generate an executable specific to your machine.
