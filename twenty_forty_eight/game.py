@@ -105,7 +105,7 @@ class Game:
 
         return str(num)
 
-    def print_header(self) -> str:
+    def print_header(self) -> None:
         """Print the game header.
 
         This includes the welcome message, controls, etc.
