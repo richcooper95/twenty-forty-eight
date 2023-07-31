@@ -1,4 +1,4 @@
-# twenty_forty_eight -- 2048 in your terminal!
+# `twenty_forty_eight` -- 2048 in your terminal!
 
 A way to play the famous [2048](https://play2048.co/) game on your terminal (so you can do it at work with no one noticing).
 
