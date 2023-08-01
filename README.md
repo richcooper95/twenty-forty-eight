@@ -4,8 +4,6 @@ A way to play the famous [2048](https://play2048.co/) game on your terminal (so 
 
 I don't own the idea behind this game; that was [Gabriele Cirulli](http://gabrielecirulli.com/). This is just a reworking.
 
-![image](https://github.com/richcooper95/twenty_forty_eight/assets/58304039/9d6b23a7-62ba-40d1-8704-808b2f15fe1c)
-
 ## Installation
 
 There are two steps to installing this command:
