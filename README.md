@@ -5,6 +5,8 @@ A way to play the famous [2048](https://play2048.co/) game from right within you
 
 I don't own the idea behind this game; that was [Gabriele Cirulli](http://gabrielecirulli.com/). This is just a reworking.
 
+<img width="614" alt="image" src="https://github.com/richcooper95/twenty-forty-eight/assets/58304039/9b9737ff-c661-40b6-b504-185aabd7ce75">
+
 ## Installation
 
 There are two steps to installing this command:
