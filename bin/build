@@ -1,6 +1,8 @@
 #!/bin/bash
 PARENT_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
+set -e
+
 cd "$PARENT_PATH/../"
 
 if ! [ -x "$(command -v python3)" ]; then
@@ -9,12 +11,14 @@ if ! [ -x "$(command -v python3)" ]; then
     exit 1
 fi
 
+echo "Cleaning up old resources..."
+rm -rf build dist twenty_forty_eight.spec .build-venv
 echo "Instantiating build venv..."
 python3 -m venv .build-venv
 echo "Activating build venv..."
 source .build-venv/bin/activate
 echo "Installing dependencies..."
-pip install -r requirements.txt &> /dev/null
+pip install -r requirements.txt > /dev/null
 echo "Creating executable..."
 pyinstaller -F twenty_forty_eight.py &> /dev/null
 echo "Copying executable to bin directory..."
