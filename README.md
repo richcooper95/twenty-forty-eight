@@ -1,7 +1,7 @@
 # `twenty_forty_eight`
 ## 2️⃣0️⃣4️⃣8️⃣ in your terminal!
 
-A way to play the famous [2048](https://play2048.co/) game on your terminal (so you can do it at work with no one noticing).
+A way to play the famous [2048](https://play2048.co/) game from right within your terminal.
 
 I don't own the idea behind this game; that was [Gabriele Cirulli](http://gabrielecirulli.com/). This is just a reworking.
 
