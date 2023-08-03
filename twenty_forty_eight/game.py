@@ -11,7 +11,7 @@ import numpy as np
 
 
 class Game:
-    """A 2048 game."""
+    """A 2048 game implementation for the terminal."""
 
     STARTING_NUMBERS = (2, 4)
 
@@ -163,19 +163,21 @@ class Game:
         """
         user_input = input("\rMove (Enter): ")
 
-        if user_input == self.left_key:
-            self.move_left()
-        elif user_input == self.right_key:
-            self.move_right()
-        elif user_input == self.down_key:
-            self.move_down()
-        elif user_input == self.up_key:
-            self.move_up()
-        elif user_input == "q":
+        if user_input == "q":
             print("")
             cprint("Thanks for playing!", "green", attrs=["bold"])
             print("")
             return False
+
+        move_fn = {
+            self.up_key: self.move_up,
+            self.down_key: self.move_down,
+            self.left_key: self.move_left,
+            self.right_key: self.move_right,
+        }.get(user_input)
+
+        if move_fn is not None and move_fn():
+            self.create_number()
 
         return True
 
@@ -192,8 +194,7 @@ class Game:
         return False
 
     def print_game_won(self) -> None:
-        """Print the game won message.
-        """
+        """Print the game won message."""
         cprint(
             "YOU WON! Congratulations, you excellent 2048-er!",
             "blue",
@@ -226,8 +227,7 @@ class Game:
         return True
 
     def print_no_moves(self) -> None:
-        """Print the no moves message.
-        """
+        """Print the no moves message."""
         cprint(
             "You're out of moves! You lost. Better luck next time.",
             "red",
@@ -249,7 +249,13 @@ class Game:
             print("")
 
     def create_number(self) -> None:
-        """Create a new number in a random empty cell."""
+        """Create a new number in a random empty cell.
+
+        If the game is full, this will do nothing.
+        """
+        if self.is_full():
+            return
+
         i, j = self.random_i_j()
 
         while self.contains_number(i, j):
@@ -276,6 +282,9 @@ class Game:
         NB: This is the only move_* method which we need to explicitly code, since the
          other move_* methods can be achieved by combinations of matrix ops and calling
          this method. See other move_* methods for details.
+
+        Returns:
+            bool: True if a number was moved or merged, False otherwise.
         """
         move_made = False
 
@@ -283,8 +292,7 @@ class Game:
             if self.move_left_in_row(i):
                 move_made = True
 
-        if move_made:
-            self.create_number()
+        return move_made
 
     def move_left_in_row(self, i: int) -> bool:
         """Move all numbers left in a given row, combining numbers that match.
@@ -413,34 +421,52 @@ class Game:
         return j_slow, move_made
 
     def move_right(self) -> None:
-        """Move all numbers right, combining numbers that match."""
+        """Move all numbers right, combining numbers that match.
+
+        Returns:
+            bool: Whether a move was made.
+        """
         # Flip the game matrix horizontally, move left, then flip it back.
         self.print_debug("Flipping matrix horizontally")
         self.mat = np.fliplr(self.mat)
         self.print_debug("Moving left")
-        self.move_left()
+        move_made = self.move_left()
         self.print_debug("Flipping matrix back")
         self.mat = np.fliplr(self.mat)
 
+        return move_made
+
     def move_up(self) -> None:
-        """Move all numbers up, combining numbers that match."""
+        """Move all numbers up, combining numbers that match.
+
+        Returns:
+            bool: Whether a move was made.
+        """
         # Transpose the game matrix (i <-> j), move left, then transpose it back.
         self.print_debug("Transposing matrix")
         self.mat = self.mat.transpose()
         self.print_debug("Moving left")
-        self.move_left()
+        move_made = self.move_left()
         self.print_debug("Transposing matrix back")
         self.mat = self.mat.transpose()
 
+        return move_made
+
     def move_down(self) -> None:
-        """Move all numbers down, combining numbers that match."""
+        """Move all numbers down, combining numbers that match.
+
+        Returns:
+            bool: Whether a move was made.
+        """
         # Transpose the game matrix (i <-> j), move right, then transpose it back.
         self.print_debug("Transposing matrix")
         self.mat = self.mat.transpose()
         self.print_debug("Moving right")
-        self.move_right()
+        move_made = self.move_right()
         self.print_debug("Transposing matrix back")
         self.mat = self.mat.transpose()
+
+        return move_made
 
     def contains_number(self, i, j) -> bool:
         """Check if the game contains a number at the given coordinates.
@@ -453,6 +479,14 @@ class Game:
             bool: True if the game contains a number at the given coordinates, False otherwise.
         """
         return self.mat[i][j] != 0
+
+    def is_full(self) -> bool:
+        """Check if the game is full (i.e. no empty cells).
+
+        Returns:
+            bool: True if the game is full, False otherwise.
+        """
+        return 0 not in self
 
     def print_debug(self, *args, **kwargs):
         """Print a debug message (i.e. only print to the terminal if debug is True)."""
